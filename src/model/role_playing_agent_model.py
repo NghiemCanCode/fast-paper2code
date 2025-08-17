@@ -12,21 +12,14 @@ from transformers import BertModel
 from .base_model import BaseModel
 
 
-def _freeze_layers(models: List[nn.Module], layers_to_unfreeze: List[int]) -> None:
-    """
-    Freeze all layers in the models except for the specified layers to unfreeze.
-
-    Args:
-        models: List of models to apply freezing to
-        layers_to_unfreeze: List of layer indices to keep unfrozen (requires_grad=True)
-    """
-    for model, layer_idx in zip(models, layers_to_unfreeze):
-        for name, param in model.named_parameters():
+def _freeze_layers(models: nn.Module, layers_to_unfreeze: List[int]) -> None:
+    for layer_idx in layers_to_unfreeze:
+        for name, param in models.named_parameters():
             # By default, freeze all parameters
-            param.requires_grad = True
+            param.requires_grad = False
             # Unfreeze only the specified layer
-            # if name.startswith(f"encoder.layer.{layer_idx}"):
-            #     param.requires_grad = True
+            if name.startswith(f"encoder.layer.{layer_idx}"):
+                param.requires_grad = True
 
 
 class MaskAttentionLayer(nn.Module):
@@ -150,25 +143,10 @@ class RolePlayingAgentModel(BaseModel):
         self._bad_explanation_embedding = BertModel.from_pretrained(config['embedding_model']).requires_grad_(False)
         self._ugly_explanation_embedding = BertModel.from_pretrained(config['embedding_model']).requires_grad_(False)
 
-        for i in range(10, 12):
-            for name, param in self._news_embedding.named_parameters():
-                if name.startswith(f"encoder.layer.{i}"):
-                    param.requires_grad = True
-
-        for i in range(10, 12):
-            for name, param in self._good_explanation_embedding.named_parameters():
-                if name.startswith(f"encoder.layer.{i}"):
-                    param.requires_grad = True
-
-        for i in range(10, 12):
-            for name, param in self._bad_explanation_embedding.named_parameters():
-                if name.startswith(f"encoder.layer.{i}"):
-                    param.requires_grad = True
-
-        for i in range(11, 12):
-            for name, param in self._ugly_explanation_embedding.named_parameters():
-                if name.startswith(f"encoder.layer.{i}"):
-                    param.requires_grad = True
+        _freeze_layers(self._news_embedding, [10, 11, 12])
+        _freeze_layers(self._good_explanation_embedding, [10, 11, 12])
+        _freeze_layers(self._good_explanation_embedding, [10, 11, 12])
+        _freeze_layers(self._good_explanation_embedding, [11, 12])
 
         # Initialize attention layers
         embedding_dim = config['embedding_dim_attention']

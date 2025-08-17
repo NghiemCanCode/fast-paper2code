@@ -39,9 +39,7 @@ In short: it helps you go from *"this paper is interesting..."* to *"here’s th
 ## 🛠️ Getting Started
 
 ```bash
-git clone https://github.com/NghiemCanCode/fast-paper2code.git
-cd fast-paper2code
-pip install -r requirements.txt
+# Need update
 ```
 
 ## 🙏 Acknowledgments
