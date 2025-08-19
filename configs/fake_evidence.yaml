@@ -1,0 +1,10 @@
+name: fake_evidence
+batch_size: 64
+data_path: ./data
+seed: 732004
+log_config: ../fake_evidence_log_config.yaml
+encoder_model: google-bert/bert-base-uncased
+embedding_dim: 768
+llm_invoke:
+  open_ai_llm:
+    model: gpt-4.1-nano-2025-04-14

@@ -1,19 +1,26 @@
+# Import built-in libraries
+import time
+import os
+import sys
+from typing import List
+from abc import ABC, abstractmethod
+
+# Set up paths
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+sys.path.insert(1, os.path.join(BASE_DIR, 'utils'))
+
+# Import external libraries
 import torch.nn as nn
 import torch.optim as optim
 import torch
-import time
 import yaml
-import os
-
 from tqdm import tqdm
-from abc import ABC, abstractmethod
 from torch.utils.data import Dataset
-from typing import List
 
-from .base_runs import AbstractRunStep
-from ..utils.util import prepare_device, unique_folder_path
-from ..data.data_loader import get_dataloader
-from ..metrics.classification import metrics
+from base_run import AbstractRunStep
+from src.utils import prepare_device, unique_folder_path
+from src.data.data_loader import get_dataloader
+from src.metrics.classification import metrics
 
 
 class Trainer(ABC):
