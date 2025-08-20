@@ -8,8 +8,10 @@ from typing import Dict, Union
 from openai import OpenAI
 from sklearn.model_selection import train_test_split
 
-from .base_runs import AbstractRunStep
-from ..utils.util import load_yaml, unique_folder_path
+from src.runs import AbstractRunStep
+from src.utils.helper import load_yaml, unique_folder_path
+
+import logging
 
 
 class LLMStrategy(ABC):
@@ -40,7 +42,7 @@ class OpenAIStrategy(LLMStrategy):
 
 
 class PromptStrategy(ABC):
-    _DEFAULT_PROMPT_TEMPLATE_FOLDER = Path("../../data/prompt_template")
+    _DEFAULT_PROMPT_TEMPLATE_FOLDER = Path(__file__).parent.parent.parent / "data" / "prompt_templates"
     _DEFAULT_DATASET_PATH = Path("../../data/datasets")
     _DEFAULT_SAVE_RESULT_PATH = Path("../../data/prompt_data_response")
 
@@ -110,16 +112,18 @@ class ZsCoTGossipCopRolePlayStrategy(PromptStrategy):
             raise ValueError("input_text must be provided")
 
         the_good_prompt = self._prompt_cache.get("the_good").replace("{@input@}", input_text)
+
+        logging.warning(f"Good: {the_good_prompt}")
         the_bad_prompt = self._prompt_cache.get("the_bad")
 
         the_ugly_prompt = self._prompt_cache.get("the_ugly").replace("{@input@}", input_text)
-
+        logging.warning(f"Ugly: {the_bad_prompt}")
         the_good_explain = self.llm_provider.invoke(the_good_prompt)
 
         the_bad_prompt = the_bad_prompt.replace("{@input@}", input_text).replace(
             "{@the_good_explain@}", the_good_explain
         )
-
+        logging.warning(f"Bad: {the_bad_prompt}")
         the_bad_explain = self.llm_provider.invoke(the_bad_prompt)
 
         the_ugly_explain = self.llm_provider.invoke(the_ugly_prompt)
